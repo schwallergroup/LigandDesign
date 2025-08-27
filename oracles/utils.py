@@ -5,6 +5,10 @@ Contains utility function to initialize OracleComponents.
 from oracles.oracle_component import OracleComponent
 from oracles.dataclass import OracleComponentParameters
 
+# Fujiwara experiments
+from oracles.fujiwara.hydroxypyridine import Hydroxypyridine
+from oracles.fujiwara.activation_energy import ActivationEnergy
+
 # Similarity metrics
 from oracles.similarity.tanimoto_similarity import TanimotoSimilarity
 from oracles.similarity.jaccard_distance import JaccardDistance
@@ -129,6 +133,11 @@ def construct_oracle_component(oracle_component_parameters: OracleComponentParam
         return QuickVina2_GPU(oracle_component_parameters)
     elif name == "gnina":
         return GNINA(oracle_component_parameters)
+    # Fujiwara experiments
+    elif name == "hydroxypyridine":
+        return Hydroxypyridine(oracle_component_parameters)
+    elif name == "activation_energy":
+        return ActivationEnergy(oracle_component_parameters)
     # xTB electronic properties
     elif name == "chemical_potential":
         return ChemicalPotential(oracle_component_parameters)
