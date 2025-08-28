@@ -515,6 +515,78 @@ def automated_files_XTB (SMILES : str) -> None:
                                     shell=True, stdout=open(constrained_outfile_output, 'w'), stderr=subprocess.STDOUT)
             if orca_run.returncode != 0:
                 raise RuntimeError(f"ORCA failed with return code {orca_run.returncode}")
+
+def verify_big_changes(SMILES: str, type_of_compound: str) -> bool:
+    '''
+    This function verifies if big changes such as
+    bond breaks have taken place during the 
+    optimization process.
+
+    This function takes as argument a SMILES string
+    corresponding to the ligand that has been optimized
+    and the type of compound that has been optimized (either
+    type 0 or type ts). It returns True if bond breaks have
+    taken place and False if no major changes have taken
+    place.
+
+    Parameters:
+    ----------
+        SMILES : str
+            String of the SMILES for which the optimzation has been performed
+        type_of_compound : str
+            String of the type of compound that is being analyzed. Needs to be
+            either 0.xyz or ts.xyz
+
+    Returns:
+    ----------
+        True : bool
+            If major changes, such as bond breaking, have taken place
+        False : bool
+            If no major changes have taken place
+    '''
+
+    SMILES_dir = Path(r'/data/octavian/',f'{SMILES}') # Path to the SMILES directory
+    original_geometry_file = Path(SMILES_dir, type_of_compound) # Path to the file of the unoptimized geometry
+    # Path to the file of the optimized geometry
+    if type_of_compound == '0.xyz':
+        optimized_geometry_file = Path(SMILES_dir, '0_comput/energy/catalyst.xyz')
+    elif type_of_compound == 'ts.xyz':
+        optimized_geometry_file = Path(SMILES_dir, 'ts_comput/energy/ts_constrained.xyz')
+
+    # Geometry objects are defined for the unoptimized and optimized compounds
+    original_geometry = Geometry(f'{original_geometry_file}')
+    optimized_geometry = Geometry(f'{optimized_geometry_file}')
+
+    # The list of atoms for each of the two geometries are extracted
+    atoms_original = original.atoms
+    atoms_optimized = optimized.atoms
+
+    # The geometry files of the original and optimized geometries
+    # should have the atoms indicated in the same order, and therefore
+    # the atoms should have the same indices.
+    # Thus, atoms with the same indices in both lists should have the 
+    # same neighbors. So, by sorting the list of indices of the neighbors
+    # of two atoms with the same index, the list should be the same if
+    # no major chages have taken place.
+
+    for i in range(len(atoms_original)): # Iterates through the atom lists
+
+        neighbors_original = atoms_original[i].connected # Gets the neighbor list of the atom analyzed in the original geometry
+        original_indices = [] # List that will contain the indices of the neighbors
+        for neighbor_atom_original in neighbors_original: # Iterates through the neighbor atoms
+            original_indices.append(int(neighbor_atom_original.name)) # Appends the index of the neighbor atom analyzed
+        original_indices.sort() # Sorts the neighbor list in an increasing order
+
+        neighbors_optimized = atoms_optimized[i].connected # Gets the neighbor list of the atom analyzed in the optimized geometry
+        optimized_indices = [] # List that will contain the indices of the neighbors
+        for neighbor_atom_optimized in neighbors_optimized: # Iterates through the neighbor atoms
+            optimized_indices.append(int(neighbor_atom_optimized.name)) # Appends the index of the neighbor atom analyzed
+        optimized_indices.sort() # Sorts the neighbor list in an increasing order
+        
+        if original_indices != optimized_indices: # Compares the two lists
+            return(True) # Big changes have taken place
+    return (False)
+
                    
 def extract_energies(SMILES : str) -> float:
     '''
@@ -570,6 +642,10 @@ def extract_energies(SMILES : str) -> float:
         elif compound_ts_output_content['error']: # Verrifies whether compound ts encountered any error during the calculations
             f.write(f'{SMILES} Calculation of compound ts encountered an error \n')
             f.write(f'-----------------------------\n')
+        elif verify_big_changes(f'{SMILES}', '0.xyz'): # Verifies whether compound 0 suffered major changes during optimization
+            f.write(f'{SMILES} Calculation of compound 0 resulted in major geometry changes \n)')
+        elif verify_big_changes(f'{SMILES}', 'ts.xyz'): # Verifies whether compound ts suffered major changes during optimization
+            f.write(f'{SMILES} Calculation of compound ts resulted in major geometry changes \n)')    
         else:
 
             # Extracts the Gibbs free energy of compound 0 and of the ts (both in Eh)
