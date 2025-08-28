@@ -11,8 +11,8 @@ import click
 import shutil
 
 # Constants to be used
-benzene_electronic_energy = -15.88624946567 # Calculated at XTB level of theory without solvent
-benzene_free_energy = -15.82458903 # Calculated at XTB level of theory without solvent
+benzene_electronic_energy = -15.90075765 # Calculated at XTB level of theory with DDCOSMO(benzene)
+benzene_free_energy = -15.83967938 # Calculated at XTB level of theory with DDCOSMO (benzene)
 T = 383 # In K
 R = 1.98720425864083 / 1000 # In kcal/mol
 conversion_eh_kcal = 627.5094740631 # From hartree to kcal/mol
