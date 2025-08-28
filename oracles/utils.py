@@ -8,6 +8,7 @@ from oracles.dataclass import OracleComponentParameters
 # Fujiwara experiments
 from oracles.fujiwara.hydroxypyridine import Hydroxypyridine
 from oracles.fujiwara.activation_energy import ActivationEnergy
+from oracles.fujiwara.neutral import Neutral
 
 # Similarity metrics
 from oracles.similarity.tanimoto_similarity import TanimotoSimilarity
@@ -138,6 +139,8 @@ def construct_oracle_component(oracle_component_parameters: OracleComponentParam
         return Hydroxypyridine(oracle_component_parameters)
     elif name == "activation_energy":
         return ActivationEnergy(oracle_component_parameters)
+    elif name == "neutral":
+        return Neutral(oracle_component_parameters)
     # xTB electronic properties
     elif name == "chemical_potential":
         return ChemicalPotential(oracle_component_parameters)
