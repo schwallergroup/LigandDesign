@@ -558,8 +558,8 @@ def verify_big_changes(SMILES: str, type_of_compound: str) -> bool:
     optimized_geometry = Geometry(f'{optimized_geometry_file}')
 
     # The list of atoms for each of the two geometries are extracted
-    atoms_original = original.atoms
-    atoms_optimized = optimized.atoms
+    atoms_original = original_geometry.atoms
+    atoms_optimized = optimized_geometry.atoms
 
     # The geometry files of the original and optimized geometries
     # should have the atoms indicated in the same order, and therefore
